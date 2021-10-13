@@ -1,4 +1,4 @@
-const writeXlsxFile = require('write-excel-file/node');
+import writeXlsxFile from 'write-excel-file'
 
 export default class Service {
   constructor() {
@@ -17,7 +17,7 @@ export default class Service {
   convertArrays() {
     const convertedArray = [];
 
-    this.usersBooks.map(book => {
+    this.usersBooks.forEach(book => {
       if(!convertedArray[book.grade]) convertedArray[book.grade] = [];
 
       convertedArray[book.grade].push(book);
@@ -34,10 +34,10 @@ export default class Service {
             }
 
             const existingIndex = convertedJSON[book.grade].findIndex(element => (
-              element.className == classObject[0] && element.subject == book.subject
+              element.className === classObject[0] && element.subject === book.subject
             ));
 
-            if(existingIndex != -1) {
+            if(existingIndex !== -1) {
               if (classObject[1]) {
                 classObject[1].forEach(group =>
                   convertedJSON[book.grade][existingIndex].book.push([ group, book.book ])
@@ -160,7 +160,7 @@ export default class Service {
         align: 'center',
         borderStyle: 'thin',
       },
-      filePath: './podreczniki.xlsx'
+      fileName: 'podreczniki.xlsx'
     });
   }
 }
