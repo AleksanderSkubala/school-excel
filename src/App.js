@@ -1,9 +1,12 @@
 import Service from "./service";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 function App() {
   const service = new Service();
   const [bookData, setBookData] = useState([]);
+  const [classList, setClassList] = useState([]);
+  const classInput = useRef();
+  const groupInput = useRef();
 
   const submitData = (e) => {
     e.preventDefault();
@@ -11,22 +14,46 @@ function App() {
 
     const formData = new FormData(formEl);
 
-    const classes = [
-      [ formData.get('bookClassName'), formData.get('bookGroup') !== '' ? [ formData.get('bookGroup') ] : null ]
-    ];
+    // const classes = [
+    //   [ formData.get('bookClassName'), formData.get('bookGroup') !== '' ? [ formData.get('bookGroup') ] : null ]
+    // ];
 
     const bookObject = {
       book: formData.get('bookName'),
       grade: formData.get('bookGrade'),
       subject: formData.get('bookSubject'),
-      classes,
+      classes: classList,
       author: 'dSc. Aleksander Skubała'
     };
 
     const currentData = bookData.slice();
     currentData.push(bookObject);
     setBookData(currentData);
+    setClassList([]);
     console.log(currentData);
+  }
+
+  const addClassObject = (e) => {
+    e.preventDefault();
+    const className = classInput.current.value;
+    const groups = groupInput.current.value;
+    const groupList = groups.split(',');
+    console.log(groupList);
+
+    const currentClasses = classList.slice();
+    currentClasses.push([
+      className,
+      groupList ? groupList : null,
+    ]);
+
+    setClassList(currentClasses);
+  };
+
+  const removeClassObject = (e, id) => {
+    e.preventDefault();
+    const newClasses = classList.slice();
+    newClasses.splice(id, 1);
+    setClassList(newClasses);
   }
 
   const downloadFile = () => {
@@ -47,11 +74,11 @@ function App() {
               <label htmlFor="bookName" className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 Book name
               </label>
-              <input name="bookName" type="text" placeholder="e.g. High Note 4" className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" />
-              <p className="text-gray-600 text-xs italic">Here's the name of the book that you'll use on your classes</p>
+              <input name="bookName" type="text" placeholder="e.g. High Note 4" className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" />
+              {/* <p className="text-gray-600 mt-3 text-xs italic">Here's the name of the book that you'll use on your classes</p> */}
             </div>
           </div>
-          <div className="flex flex-wrap -mx-3 mb-2">
+          <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label htmlFor="bookSubject" className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 Subject
@@ -76,21 +103,43 @@ function App() {
               </div>
             </div>
           </div>
+
           <div className="flex flex-wrap -mx-3 mb-6">
-            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+            <div className="w-full md:w-2/5 px-3 mb-6 md:mb-0">
               <label htmlFor="bookClassName" className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Class
+                Class Name
               </label>
-              <input name="bookClassName" type="text" placeholder="e.g. 3_PC" className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" />
+              <input ref={classInput} name="bookClassName" type="text" placeholder="e.g. 3_PC" className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" />
               <p className="text-red-500 text-xs italic">Please fill out this field.</p>
             </div>
-            <div className="w-full md:w-1/2 px-3">
+            <div className="w-full md:w-2/5 px-3 mb-6 md:mb-0">
               <label htmlFor="bookGroup" className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 Group
               </label>
-              <input name="bookGroup" type="text" placeholder="e.g. 1/2" className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" />
+              <input ref={groupInput} name="bookGroup" type="text" placeholder="e.g. 1/2" className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" />
+            </div>
+            <div className="w-full md:w-1/5 flex flex-col justify-center">
+              <button onClick={addClassObject} className="bg-blue-500 py-2 px-2 hover:bg-blue-700 text-white font-bold rounded focus:outline-none focus:shadow-outline">
+                Add a class
+              </button>
             </div>
           </div>
+          {classList.length > 0 ? (
+            <div>
+              <p className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                Class List:
+              </p>
+              <ol className="mt-4">
+                {classList.map((classObject, id) => (
+                  <li key={id} className="mb-2">
+                    {classObject[0]}
+                    {classObject[1] ? ' - ' + classObject[1].map(group => group) : null}
+                    <button onClick={(e) => removeClassObject(e, id)} className="rounded-full bg-red-300 uppercase ml-4 px-3 py-1 text-xs font-bold">Delete</button>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ) : null}
           <div className="float-right">
             <button className="flex-shrink-0 border-transparent border-4 text-blue-700 hover:text-blue-400 text-sm py-2 px-4 rounded" type="reset">
               Cancel
@@ -110,11 +159,13 @@ function App() {
               </div>
               <div className="px-6 pb-6">
                 <div className="font-bold text-xl mb-1">{ bookObject.book }</div>
-                <p className="text-gray-700 text-base">
-                  {bookObject.classes.map(classObject =>
-                    classObject[1] ? classObject[0] + " - " + classObject[1] : classObject[0]
+                <ol className="text-gray-700 text-base">
+                  {bookObject.classes.map((classObject, id) =>
+                    classObject[1] ? (
+                      <li key={id}>{ classObject[0] + " - " + classObject[1] }</li>
+                    ) : classObject[0]
                   )}
-                </p>
+                </ol>
               </div>
             </div>
           ))}
