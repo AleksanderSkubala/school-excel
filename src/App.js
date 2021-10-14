@@ -1,36 +1,44 @@
 import Service from "./service";
+import { useState } from "react";
 
 function App() {
   const service = new Service();
+  const [bookData, setBookData] = useState([]);
 
   const submitData = (e) => {
     e.preventDefault();
     const formEl = e.target;
 
     const formData = new FormData(formEl);
+
+    const classes = [
+      [ formData.get('bookClassName'), formData.get('bookGroup') !== '' ? [ formData.get('bookGroup') ] : null ]
+    ];
+
     const bookObject = {
       book: formData.get('bookName'),
       grade: formData.get('bookGrade'),
       subject: formData.get('bookSubject'),
-      classes: [
-        [ formData.get('bookClassName'), [ formData.get('bookGroup') ] ]
-      ],
+      classes,
       author: 'dSc. Aleksander Skubała'
     };
 
-    // for(const pair of formData.entries()) {
-    //   bookObject[pair[0]] = pair[1];
-    // }
+    const currentData = bookData.slice();
+    currentData.push(bookObject);
+    setBookData(currentData);
+    console.log(currentData);
+  }
 
-    console.log(bookObject);
-    service.newBook(bookObject);
+  const downloadFile = () => {
+    bookData.forEach(bookObject => service.newBook(bookObject));
+    service.generateFile();
   }
 
   return (
-    <div className="w-screen h-screen bg-gray-100 flex justify-center items-center">
-      <div className="w-full h-full lg:w-3/4 lg:h-3/4 xl:w-1/2 p-10 rounded-lg bg-white flex items-center flex-col">
+    <div className="w-screen min-h-screen bg-gray-100 flex justify-center items-center">
+      <div className="w-full min-h-full lg:w-3/4 lg:min-h-3/4 xl:w-1/2 p-10 rounded-lg bg-white flex items-center flex-col">
         <h1 className="text-3xl font-bold mb-8">Lista podręczników</h1>
-        <button onClick={() => service.generateFile()} className="p-5 mb-12 border-4 border-blue-300 border-dashed rounded text-lg text-blue-300 hover:text-blue-100 font-semibold">
+        <button onClick={downloadFile} className="p-5 mb-12 border-4 border-blue-300 border-dashed rounded text-lg text-blue-300 hover:text-blue-100 font-semibold">
           Pobierz plik
         </button>
         <form onSubmit={submitData} className="w-full max-w-lg">
@@ -92,6 +100,25 @@ function App() {
             </button>
           </div>
         </form>
+
+        <div className="w-full mt-20 grid grid-cols-3 gap-5">
+          {bookData.map((bookObject, id) => (
+            <div className="w-full rounded shadow-md" key={id}>
+              <div className="p-5 pb-3">
+                <span className="inline-block bg-gray-200 rounded-full px-3 py-1 mr-2 text-sm font-semibold text-gray-700">{ bookObject.subject }</span>
+                <span className="inline-block bg-gray-200 rounded-full px-3 py-1 mr-2 text-sm font-semibold text-gray-700">Klasa { bookObject.grade }</span>
+              </div>
+              <div className="px-6 pb-6">
+                <div className="font-bold text-xl mb-1">{ bookObject.book }</div>
+                <p className="text-gray-700 text-base">
+                  {bookObject.classes.map(classObject =>
+                    classObject[1] ? classObject[0] + " - " + classObject[1] : classObject[0]
+                  )}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
