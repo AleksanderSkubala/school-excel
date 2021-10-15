@@ -1,5 +1,7 @@
 import Service from "./service";
 import { useState, useRef } from "react";
+import Button from './components/atoms/Button';
+import TextInput from "./components/atoms/TextInput";
 
 function App() {
   const service = new Service();
@@ -29,7 +31,7 @@ function App() {
     const currentData = bookData.slice();
     currentData.push(bookObject);
     setBookData(currentData);
-    setClassList([]);
+    // setClassList([]);
     console.log(currentData);
   }
 
@@ -56,6 +58,13 @@ function App() {
     setClassList(newClasses);
   }
 
+  const removeBookObject = (e, id) => {
+    e.preventDefault();
+    const newBookData = bookData.slice();
+    newBookData.splice(id, 1);
+    setBookData(newBookData);
+  };
+
   const downloadFile = () => {
     bookData.forEach(bookObject => service.newBook(bookObject));
     service.generateFile();
@@ -70,13 +79,7 @@ function App() {
         </button>
         <form onSubmit={submitData} className="w-full max-w-lg">
           <div className="flex flex-wrap -mx-3 mb-6">
-            <div className="w-full px-3">
-              <label htmlFor="bookName" className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Book name
-              </label>
-              <input name="bookName" type="text" placeholder="e.g. High Note 4" className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" />
-              {/* <p className="text-gray-600 mt-3 text-xs italic">Here's the name of the book that you'll use on your classes</p> */}
-            </div>
+            <TextInput w="w-full" label="Book name" name="bookName" placeholder="e.g. High Note 4" />
           </div>
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
@@ -119,9 +122,9 @@ function App() {
               <input ref={groupInput} name="bookGroup" type="text" placeholder="e.g. 1/2" className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" />
             </div>
             <div className="w-full md:w-1/5 flex flex-col justify-center">
-              <button onClick={addClassObject} className="bg-blue-500 py-2 px-2 hover:bg-blue-700 text-white font-bold rounded focus:outline-none focus:shadow-outline">
+              <Button onClick={addClassObject} primary>
                 Add a class
-              </button>
+              </Button>
             </div>
           </div>
           {classList.length > 0 ? (
@@ -134,25 +137,25 @@ function App() {
                   <li key={id} className="mb-2">
                     {classObject[0]}
                     {classObject[1] ? ' - ' + classObject[1].map(group => group) : null}
-                    <button onClick={(e) => removeClassObject(e, id)} className="rounded-full bg-red-300 uppercase ml-4 px-3 py-1 text-xs font-bold">Delete</button>
+                    <Button onClick={(e) => removeClassObject(e, id)}>Delete</Button>
                   </li>
                 ))}
               </ol>
             </div>
           ) : null}
           <div className="float-right">
-            <button className="flex-shrink-0 border-transparent border-4 text-blue-700 hover:text-blue-400 text-sm py-2 px-4 rounded" type="reset">
+            <Button secondary type="reset">
               Cancel
-            </button>
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+            </Button>
+            <Button primary type="submit">
               Add a book
-            </button>
+            </Button>
           </div>
         </form>
 
         <div className="w-full mt-20 grid grid-cols-3 gap-5">
           {bookData.map((bookObject, id) => (
-            <div className="w-full rounded shadow-md" key={id}>
+            <div className="w-full rounded shadow-md pb-5" key={id}>
               <div className="p-5 pb-3">
                 <span className="inline-block bg-gray-200 rounded-full px-3 py-1 mr-2 text-sm font-semibold text-gray-700">{ bookObject.subject }</span>
                 <span className="inline-block bg-gray-200 rounded-full px-3 py-1 mr-2 text-sm font-semibold text-gray-700">Klasa { bookObject.grade }</span>
@@ -167,9 +170,11 @@ function App() {
                   )}
                 </ol>
               </div>
+              <Button onClick={(e) => removeBookObject(e, id)}>Delete</Button>
             </div>
           ))}
         </div>
+
       </div>
     </div>
   );
