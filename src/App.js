@@ -79,15 +79,10 @@ function App() {
         </button>
         <form onSubmit={submitData} className="w-full max-w-lg">
           <div className="flex flex-wrap -mx-3 mb-6">
-            <TextInput w="w-full" label="Book name" name="bookName" placeholder="e.g. High Note 4" />
+            <TextInput label="Book name" name="bookName" placeholder="e.g. High Note 4" description="Please fill out this field." />
           </div>
           <div className="flex flex-wrap -mx-3 mb-6">
-            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-              <label htmlFor="bookSubject" className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Subject
-              </label>
-              <input name="bookSubject" type="text" placeholder="e.g. English" className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" />
-            </div>
+            <TextInput w="md:w-1/2 " name="bookSubject" label="Subject" placeholder="e.g. English" />
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label htmlFor="bookGrade" className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 Grade
@@ -108,19 +103,8 @@ function App() {
           </div>
 
           <div className="flex flex-wrap -mx-3 mb-6">
-            <div className="w-full md:w-2/5 px-3 mb-6 md:mb-0">
-              <label htmlFor="bookClassName" className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Class Name
-              </label>
-              <input ref={classInput} name="bookClassName" type="text" placeholder="e.g. 3_PC" className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" />
-              <p className="text-red-500 text-xs italic">Please fill out this field.</p>
-            </div>
-            <div className="w-full md:w-2/5 px-3 mb-6 md:mb-0">
-              <label htmlFor="bookGroup" className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Group
-              </label>
-              <input ref={groupInput} name="bookGroup" type="text" placeholder="e.g. 1/2" className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" />
-            </div>
+            <TextInput w="md:w-2/5" refProp={classInput} name="bookClassName" label="Class Name" placeholder="e.g. 3_PC" />
+            <TextInput w="md:w-2/5" refProp={groupInput} name="bookGroup" label="Group" placeholder="e.g. 1/2" />
             <div className="w-full md:w-1/5 flex flex-col justify-center">
               <Button onClick={addClassObject} primary>
                 Add a class
