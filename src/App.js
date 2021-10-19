@@ -1,24 +1,29 @@
 import Service from "./service";
-import { useState, useRef } from "react";
+import { useState, useRef, useContext, useEffect } from "react";
+import { FirestoreContext } from "./providers/FirestoreProvider";
 import Button from './components/atoms/Button';
 import TextInput from "./components/atoms/TextInput";
 
 function App() {
   const service = new Service();
+  const { firestoreData } = useContext(FirestoreContext);
   const [bookData, setBookData] = useState([]);
   const [classList, setClassList] = useState([]);
   const classInput = useRef();
   const groupInput = useRef();
+
+  useEffect(() => {
+    if (firestoreData) {
+      setBookData(firestoreData);
+      console.log(firestoreData);
+    }
+  }, [firestoreData]);
 
   const submitData = (e) => {
     e.preventDefault();
     const formEl = e.target;
 
     const formData = new FormData(formEl);
-
-    // const classes = [
-    //   [ formData.get('bookClassName'), formData.get('bookGroup') !== '' ? [ formData.get('bookGroup') ] : null ]
-    // ];
 
     const bookObject = {
       book: formData.get('bookName'),
@@ -31,7 +36,6 @@ function App() {
     const currentData = bookData.slice();
     currentData.push(bookObject);
     setBookData(currentData);
-    // setClassList([]);
     console.log(currentData);
   }
 
