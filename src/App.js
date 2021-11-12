@@ -1,25 +1,39 @@
-import Service from "./service";
 import { useState, useRef, useContext, useEffect } from "react";
-import { FirestoreContext } from "./providers/FirestoreProvider";
+import { ServiceContext } from "./providers/ServiceProvider";
 import Button from './components/atoms/Button';
 import TextInput from "./components/atoms/TextInput";
+import { collection, onSnapshot } from "@firebase/firestore";
+import { db } from "./initFirebase";
 
 function App() {
-  const service = new Service();
-  const { firestoreData } = useContext(FirestoreContext);
+  const { service } = useContext(ServiceContext);
   const [bookData, setBookData] = useState([]);
   const [classList, setClassList] = useState([]);
   const classInput = useRef();
   const groupInput = useRef();
 
   useEffect(() => {
-    if (firestoreData) {
-      setBookData(firestoreData);
-      console.log(firestoreData);
-    }
-  }, [firestoreData]);
+    const unsubscribe = onSnapshot(collection(db, "books"), (querySnapshot) => {
+      const booksData = [];
+      const parsedData = [];
 
-  const submitData = (e) => {
+      querySnapshot.forEach(doc => booksData.push({
+        ...doc.data(),
+        firestoreId: doc.id,
+      }));
+
+      booksData.forEach(doc => {
+        const object = doc;
+        object.classes = JSON.parse(object.classes);
+        parsedData.push(object);
+      });
+      setBookData(parsedData);
+    });
+
+    return () => unsubscribe()
+  }, []);
+
+  const submitData = async (e) => {
     e.preventDefault();
     const formEl = e.target;
 
@@ -30,13 +44,10 @@ function App() {
       grade: formData.get('bookGrade'),
       subject: formData.get('bookSubject'),
       classes: classList,
-      author: 'dSc. Aleksander Skubała'
+      author: 'dSc. Aleksander Skubała',
     };
 
-    const currentData = bookData.slice();
-    currentData.push(bookObject);
-    setBookData(currentData);
-    console.log(currentData);
+    service.newBook(bookObject);
   }
 
   const addClassObject = (e) => {
@@ -44,7 +55,6 @@ function App() {
     const className = classInput.current.value;
     const groups = groupInput.current.value;
     const groupList = groups.split(',');
-    console.log(groupList);
 
     const currentClasses = classList.slice();
     currentClasses.push([
@@ -64,13 +74,12 @@ function App() {
 
   const removeBookObject = (e, id) => {
     e.preventDefault();
-    const newBookData = bookData.slice();
-    newBookData.splice(id, 1);
-    setBookData(newBookData);
+    service.removeBook(bookData[id]);
   };
 
   const downloadFile = () => {
-    bookData.forEach(bookObject => service.newBook(bookObject));
+    // bookData.forEach(bookObject => service.newBook(bookObject));
+    service.transferDataFromDB(bookData)
     service.generateFile();
   }
 
@@ -110,7 +119,7 @@ function App() {
             <TextInput w="md:w-2/5" refProp={classInput} name="bookClassName" label="Class Name" placeholder="e.g. 3_PC" />
             <TextInput w="md:w-2/5" refProp={groupInput} name="bookGroup" label="Group" placeholder="e.g. 1/2" />
             <div className="w-full md:w-1/5 flex flex-col justify-center">
-              <Button onClick={addClassObject} primary>
+              <Button onClick={addClassObject} primary="true">
                 Add a class
               </Button>
             </div>
@@ -132,10 +141,10 @@ function App() {
             </div>
           ) : null}
           <div className="float-right">
-            <Button secondary type="reset">
+            <Button secondary="true" type="reset">
               Cancel
             </Button>
-            <Button primary type="submit">
+            <Button primary="true" type="submit">
               Add a book
             </Button>
           </div>

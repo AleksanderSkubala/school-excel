@@ -1,15 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { FirestoreProvider } from "./providers/FirestoreProvider";
+import { ServiceProvider } from "./providers/ServiceProvider";
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <FirestoreProvider>
+    <ServiceProvider>
       <App />
-    </FirestoreProvider>
+    </ServiceProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

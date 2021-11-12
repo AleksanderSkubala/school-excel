@@ -1,4 +1,6 @@
-import writeXlsxFile from 'write-excel-file'
+import { addDoc, deleteDoc, doc, collection } from '@firebase/firestore';
+import writeXlsxFile from 'write-excel-file';
+import { db } from '../initFirebase';
 
 export default class Service {
   constructor() {
@@ -6,11 +8,31 @@ export default class Service {
     this.excelData = [];
   }
 
-  newBook(bookObject) {
-    return new Promise((resolve) => {
+  transferDataFromDB(dbData) {
+    dbData.forEach(bookObject => {
       this.usersBooks.push(bookObject);
-      this.convertArrays();
-      resolve();
+    });
+    this.convertArrays();
+  }
+
+  newBook(bookObject) {
+    return new Promise((resolve, reject) => {
+      const convertedObject = bookObject;
+      if(typeof bookObject.classes !== 'string') {
+        convertedObject.classes = JSON.stringify(convertedObject.classes);
+      }
+
+      addDoc(collection(db, "books"), convertedObject)
+        .then(() => resolve())
+        .catch(() => reject());
+    });
+  }
+
+  removeBook(removedObject) {
+    return new Promise((resolve, reject) => {
+      deleteDoc(doc(db, "books", removedObject.firestoreId))
+        .then(() => resolve())
+        .catch(err => reject(err));
     });
   }
 
@@ -106,6 +128,7 @@ export default class Service {
   }
 
   async generateFile() {
+    console.log(this.usersBooks);
     const schema = [
       {
         column: 'Oddział',
@@ -131,7 +154,6 @@ export default class Service {
         value: ({ book }) => {
           let generatedString = '';
           book.forEach(group => {
-            console.log(group);
             if(group[0]) generatedString = generatedString.concat(group[0], ' - ', group[1], '\n');
             else generatedString = generatedString.concat(group[1], '\n');
           });
