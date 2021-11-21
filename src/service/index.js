@@ -6,6 +6,18 @@ export default class Service {
   constructor() {
     this.usersBooks = [];
     this.excelData = [];
+    this.auth = null;
+  }
+
+  setEmail(email) {
+    return new Promise((resolve) => {
+      this.auth = email;
+      resolve();
+    });
+  }
+
+  static get authData() {
+    return this.auth;
   }
 
   transferDataFromDB(dbData) {
@@ -30,7 +42,7 @@ export default class Service {
 
   removeBook(removedObject) {
     return new Promise((resolve, reject) => {
-      deleteDoc(doc(db, "books", removedObject.firestoreId))
+      deleteDoc(doc(db, "books", removedObject.id))
         .then(() => resolve())
         .catch(err => reject(err));
     });

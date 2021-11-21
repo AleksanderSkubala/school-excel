@@ -1,14 +1,27 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import Service from "../service";
 
-export const ServiceContext = createContext({ firestoreData: null });
+export const ServiceContext = createContext({
+  service: null,
+  auth: null,
+  login: null,
+});
 
 export function ServiceProvider({ children }) {
-  const [service, setService] = useState(null);
+  const [service] = useState(new Service());
+  const [auth, setAuth] = useState(null);
 
-  useEffect(() => {
-    setService(new Service());
-  }, []);
+  function login(email) {
+    service.setEmail(email).then(() => setAuth(email));
+    console.log(service, auth);
+  }
 
-  return <ServiceContext.Provider value={{service}}>{children}</ServiceContext.Provider>
+  const memoedValue = useMemo(() => ({
+    service,
+    auth,
+    login,
+  }), [service, auth]);
+
+
+  return <ServiceContext.Provider value={memoedValue}>{children}</ServiceContext.Provider>
 };
