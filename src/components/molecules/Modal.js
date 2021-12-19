@@ -5,7 +5,7 @@ import Button from "../atoms/Button";
 import TextInput from "../atoms/TextInput";
 
 export default function Modal() {
-  const { service, auth, login } = useContext(ServiceContext);
+  const { service, login } = useContext(ServiceContext);
   const [errors, setErrors] = useState({
     email: {
       message: ''
@@ -15,7 +15,7 @@ export default function Modal() {
 
   const onSubmit = data => {
     login(data.email);
-    console.log(service.auth);
+    // console.log(service.auth);
   };
 
   const onErr = err => {

@@ -1,4 +1,4 @@
-import { createContext, useEffect, useMemo, useState } from "react";
+import { createContext, useMemo, useState } from "react";
 import Service from "../service";
 
 export const ServiceContext = createContext({
@@ -13,7 +13,6 @@ export function ServiceProvider({ children }) {
 
   function login(email) {
     service.setEmail(email).then(() => setAuth(email));
-    console.log(service, auth);
   }
 
   const memoedValue = useMemo(() => ({

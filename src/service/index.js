@@ -16,10 +16,6 @@ export default class Service {
     });
   }
 
-  static get authData() {
-    return this.auth;
-  }
-
   transferDataFromDB(dbData) {
     dbData.forEach(bookObject => {
       this.usersBooks.push(bookObject);
@@ -30,7 +26,7 @@ export default class Service {
   newBook(bookObject) {
     return new Promise((resolve, reject) => {
       const convertedObject = bookObject;
-      if(typeof bookObject.classes !== 'string') {
+      if (typeof bookObject.classes !== 'string') {
         convertedObject.classes = JSON.stringify(convertedObject.classes);
       }
 
@@ -52,18 +48,18 @@ export default class Service {
     const convertedArray = [];
 
     this.usersBooks.forEach(book => {
-      if(!convertedArray[book.grade]) convertedArray[book.grade] = [];
+      if (!convertedArray[book.grade]) convertedArray[book.grade] = [];
 
       convertedArray[book.grade].push(book);
     });
 
     const convertedJSON = [];
 
-    for(const grade of convertedArray) {
+    for (const grade of convertedArray) {
       if (grade) {
-        for(const book of grade) {
-          for(const classObject of book.classes) {
-            if(!convertedJSON[book.grade]) {
+        for (const book of grade) {
+          for (const classObject of book.classes) {
+            if (!convertedJSON[book.grade]) {
               convertedJSON[book.grade] = [];
             }
 
@@ -71,13 +67,13 @@ export default class Service {
               element.className === classObject[0] && element.subject === book.subject
             ));
 
-            if(existingIndex !== -1) {
+            if (existingIndex !== -1) {
               if (classObject[1]) {
                 classObject[1].forEach(group =>
-                  convertedJSON[book.grade][existingIndex].book.push([ group, book.book ])
+                  convertedJSON[book.grade][existingIndex].book.push([group, book.book])
                 );
               } else {
-                convertedJSON[book.grade][existingIndex].book.push([ null, book.book ]);
+                convertedJSON[book.grade][existingIndex].book.push([null, book.book]);
               }
             }
             else {
@@ -85,27 +81,27 @@ export default class Service {
                 convertedJSON[book.grade].push({
                   className: classObject[0],
                   subject: book.subject,
-                  book: classObject[1].map(group => [ group, book.book ]),
+                  book: classObject[1].map(group => [group, book.book]),
                 });
               } else {
                 convertedJSON[book.grade].push({
                   className: classObject[0],
                   subject: book.subject,
-                  book: [ [ null, book.book ] ],
+                  book: [[null, book.book]],
                 });
               }
             }
           }
 
           convertedJSON[book.grade].sort((a, b) => {
-            if(a.subject < b.subject) return -1;
-            if(a.subject > b.subject) return 1;
+            if (a.subject < b.subject) return -1;
+            if (a.subject > b.subject) return 1;
             return 0;
           });
 
           convertedJSON[book.grade].sort((a, b) => {
-            if(a.className < b.className) return -1;
-            if(a.className > b.className) return 1;
+            if (a.className < b.className) return -1;
+            if (a.className > b.className) return 1;
             return 0;
           });
 
@@ -166,7 +162,7 @@ export default class Service {
         value: ({ book }) => {
           let generatedString = '';
           book.forEach(group => {
-            if(group[0]) generatedString = generatedString.concat(group[0], ' - ', group[1], '\n');
+            if (group[0]) generatedString = generatedString.concat(group[0], ' - ', group[1], '\n');
             else generatedString = generatedString.concat(group[1], '\n');
           });
           return generatedString;
@@ -179,7 +175,7 @@ export default class Service {
     const sheetsToGenerate = [];
     const schemasToGenerate = [];
     this.excelData.forEach((gradeContent, gradeIndex) => {
-      if(gradeContent) {
+      if (gradeContent) {
         gradesToGenerate.push(gradeContent);
         sheetsToGenerate.push(`Klasy ${gradeIndex}`);
         schemasToGenerate.push(schema);

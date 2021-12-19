@@ -9,12 +9,11 @@ function App() {
 
   useEffect(() => {
     setAuth(service.auth);
-    console.log(service.auth);
   }, [service.auth]);
 
   return (
     <div>
-      {auth == null ? <Modal/>  : <h2>Dupa</h2>}
+      {auth == null ? <Modal/>  : <AdminView/>}
     </div>
   );
 }

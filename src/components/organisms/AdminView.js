@@ -1,19 +1,24 @@
-import { useState, useRef, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { ServiceContext } from "../../providers/ServiceProvider";
 import Button from '../atoms/Button';
 import TextInput from "../atoms/TextInput";
-import { collection, onSnapshot } from "@firebase/firestore";
+import { collection, onSnapshot, query, where } from "@firebase/firestore";
 import { db } from "../../initFirebase";
+import { useForm } from "react-hook-form";
+import TextInputRef from "../atoms/TextInputRef";
 
 function AdminView() {
-  const { service, auth } = useContext(ServiceContext);
+  const { register, handleSubmit } = useForm();
+  const { service } = useContext(ServiceContext);
   const [bookData, setBookData] = useState([]);
   const [classList, setClassList] = useState([]);
-  const classInput = useRef();
-  const groupInput = useRef();
+  const bookClassNameInput = useRef(null);
+  const bookGroupInput = useRef(null);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "books"), (querySnapshot) => {
+    console.log(service.auth);
+    const customQuery = query(collection(db, "books"), where("author", "==", service.auth));
+    const unsubscribe = onSnapshot(customQuery, (querySnapshot) => {
       const booksData = [];
       const parsedData = [];
 
@@ -33,18 +38,13 @@ function AdminView() {
     return () => unsubscribe()
   }, []);
 
-  const submitData = async (e) => {
-    e.preventDefault();
-    const formEl = e.target;
-
-    const formData = new FormData(formEl);
-
+  const submitData = async ({ bookName, bookGrade, bookSubject }) => {
     const bookObject = {
-      book: formData.get('bookName'),
-      grade: formData.get('bookGrade'),
-      subject: formData.get('bookSubject'),
+      book: bookName,
+      grade: bookGrade,
+      subject: bookSubject,
       classes: classList,
-      author: auth,
+      author: service.auth,
       // author: 'dSc. Aleksander Skubała',
     };
 
@@ -53,8 +53,8 @@ function AdminView() {
 
   const addClassObject = (e) => {
     e.preventDefault();
-    const className = classInput.current.value;
-    const groups = groupInput.current.value;
+    const className = bookClassNameInput.current.value;
+    const groups = bookGroupInput.current.value;
     const groupList = groups.split(',');
 
     const currentClasses = classList.slice();
@@ -90,18 +90,18 @@ function AdminView() {
         <button onClick={downloadFile} className="p-5 mb-12 border-4 border-blue-300 border-dashed rounded text-lg text-blue-300 hover:text-blue-100 font-semibold">
           Pobierz plik
         </button>
-        <form onSubmit={submitData} className="w-full max-w-lg">
+        <form onSubmit={handleSubmit(submitData)} className="w-full max-w-lg">
           <div className="flex flex-wrap -mx-3 mb-6">
-            <TextInput label="Book name" name="bookName" placeholder="e.g. High Note 4" description="Please fill out this field." />
+            <TextInput register={register} label="Book name" name="bookName" placeholder="e.g. High Note 4" description="Please fill out this field." />
           </div>
           <div className="flex flex-wrap -mx-3 mb-6">
-            <TextInput w="md:w-1/2 " name="bookSubject" label="Subject" placeholder="e.g. English" />
+            <TextInput register={register} w="md:w-1/2 " name="bookSubject" label="Subject" placeholder="e.g. English" />
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label htmlFor="bookGrade" className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 Grade
               </label>
               <div className="relative">
-                <select name="bookGrade" className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                <select name="bookGrade" {...register("bookGrade", {required: true})} className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                   <option>1</option>
                   <option>2</option>
                   <option>3</option>
@@ -116,8 +116,8 @@ function AdminView() {
           </div>
 
           <div className="flex flex-wrap -mx-3 mb-6">
-            <TextInput w="md:w-2/5" refProp={classInput} name="bookClassName" label="Class Name" placeholder="e.g. 3_PC" />
-            <TextInput w="md:w-2/5" refProp={groupInput} name="bookGroup" label="Group" placeholder="e.g. 1/2" />
+            <TextInputRef w="md:w-2/5" refProp={bookClassNameInput} name="bookClassName" label="Class Name" placeholder="e.g. 3_PC" />
+            <TextInputRef w="md:w-2/5" refProp={bookGroupInput} name="bookGroup" label="Group" placeholder="e.g. 1/2" />
             <div className="w-full md:w-1/5 flex flex-col justify-center">
               <Button onClick={addClassObject} primary="true">
                 Add a class
