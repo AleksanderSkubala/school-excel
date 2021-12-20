@@ -2,7 +2,7 @@ import { useState, useContext, useEffect, useRef } from "react";
 import { ServiceContext } from "../../providers/ServiceProvider";
 import Button from '../atoms/Button';
 import TextInput from "../atoms/TextInput";
-import { collection, onSnapshot, query, where } from "@firebase/firestore";
+import { collection, onSnapshot, query, where, getDocs } from "@firebase/firestore";
 import { db } from "../../initFirebase";
 import { useForm } from "react-hook-form";
 import TextInputRef from "../atoms/TextInputRef";
@@ -16,7 +16,6 @@ function AdminView() {
   const bookGroupInput = useRef(null);
 
   useEffect(() => {
-    console.log(service.auth);
     const customQuery = query(collection(db, "books"), where("author", "==", service.auth));
     const unsubscribe = onSnapshot(customQuery, (querySnapshot) => {
       const booksData = [];
@@ -78,8 +77,24 @@ function AdminView() {
     service.removeBook(bookData[id]);
   };
 
-  const downloadFile = () => {
-    service.transferDataFromDB(bookData)
+  const downloadFile = async () => {
+    const customQuery = query(collection(db, "books"));
+    const querySnapshot = await getDocs(customQuery);
+    const downloadBooksData = [];
+    const downloadParsedData = [];
+
+    querySnapshot.forEach(doc => downloadBooksData.push({
+      ...doc.data(),
+      id: doc.id,
+    }));
+
+    downloadBooksData.forEach(doc => {
+      const object = doc;
+      object.classes = JSON.parse(object.classes);
+      downloadParsedData.push(object);
+    });
+
+    service.transferDataFromDB(downloadBooksData);
     service.generateFile();
   }
 
