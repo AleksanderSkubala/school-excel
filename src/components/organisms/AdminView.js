@@ -107,13 +107,13 @@ function AdminView() {
         </button>
         <form onSubmit={handleSubmit(submitData)} className="w-full max-w-lg">
           <div className="flex flex-wrap -mx-3 mb-6">
-            <TextInput register={register} label="Book name" name="bookName" placeholder="e.g. High Note 4" description="Please fill out this field." />
+            <TextInput register={register} label="Tytuł książki" name="bookName" placeholder="n.p. High Note 4" description="Proszę wypełnić to pole." />
           </div>
           <div className="flex flex-wrap -mx-3 mb-6">
-            <TextInput register={register} w="md:w-1/2 " name="bookSubject" label="Subject" placeholder="e.g. English" />
+            <TextInput register={register} w="md:w-1/2 " name="bookSubject" label="Przedmiot" placeholder="n.p. Język angielski" />
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label htmlFor="bookGrade" className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Grade
+                Klasa
               </label>
               <div className="relative">
                 <select name="bookGrade" {...register("bookGrade", {required: true})} className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
@@ -131,25 +131,25 @@ function AdminView() {
           </div>
 
           <div className="flex flex-wrap -mx-3 mb-6">
-            <TextInputRef w="md:w-2/5" refProp={bookClassNameInput} name="bookClassName" label="Class Name" placeholder="e.g. 3_PC" />
-            <TextInputRef w="md:w-2/5" refProp={bookGroupInput} name="bookGroup" label="Group" placeholder="e.g. 1/2" />
+            <TextInputRef w="md:w-2/5" refProp={bookClassNameInput} name="bookClassName" label="Identyfikator oddziału" placeholder="n.p. 3_PC" />
+            <TextInputRef w="md:w-2/5" refProp={bookGroupInput} name="bookGroup" label="Grupa" placeholder="n.p. 1/2" />
             <div className="w-full md:w-1/5 flex flex-col justify-center">
               <Button onClick={addClassObject} primary="true">
-                Add a class
+                Dodaj oddział
               </Button>
             </div>
           </div>
           {classList.length > 0 ? (
             <div>
               <p className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Class List:
+                Lista oddziałów:
               </p>
               <ol className="mt-4">
                 {classList.map((classObject, id) => (
                   <li key={id} className="mb-2">
                     {classObject[0]}
                     {classObject[1] ? ' - ' + classObject[1].map(group => group) : null}
-                    <Button onClick={(e) => removeClassObject(e, id)}>Delete</Button>
+                    <Button onClick={(e) => removeClassObject(e, id)}>Usuń</Button>
                   </li>
                 ))}
               </ol>
@@ -157,10 +157,10 @@ function AdminView() {
           ) : null}
           <div className="float-right">
             <Button secondary="true" type="reset">
-              Cancel
+              Anuluj
             </Button>
             <Button primary="true" type="submit">
-              Add a book
+              Dodaj podręcznik
             </Button>
           </div>
         </form>
@@ -182,7 +182,7 @@ function AdminView() {
                   )}
                 </ol>
               </div>
-              <Button onClick={(e) => removeBookObject(e, id)}>Delete</Button>
+              <Button onClick={(e) => removeBookObject(e, id)}>Usuń</Button>
             </div>
           ))}
         </div>
