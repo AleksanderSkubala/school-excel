@@ -1,4 +1,4 @@
-import { addDoc, deleteDoc, doc, collection } from '@firebase/firestore';
+import { addDoc, deleteDoc, setDoc, doc, collection } from '@firebase/firestore';
 import writeXlsxFile from 'write-excel-file';
 import { db } from '../initFirebase';
 
@@ -21,6 +21,16 @@ export default class Service {
       this.usersBooks.push(bookObject);
     });
     this.convertArrays();
+  }
+
+  setCurriculum(curriculumName) {
+    return new Promise((resolve, reject) => {
+      const curriculumRef = doc(db, "curriculums", this.auth);
+
+      setDoc(curriculumRef, { curriculumName }, { merge: true })
+        .then(() => resolve())
+        .catch(() => reject());
+    });
   }
 
   newBook(bookObject) {
@@ -136,7 +146,6 @@ export default class Service {
   }
 
   async generateFile() {
-    console.log(this.usersBooks);
     const schema = [
       {
         column: 'Oddział',
@@ -191,6 +200,31 @@ export default class Service {
         borderStyle: 'thin',
       },
       fileName: 'podreczniki.xlsx'
+    });
+  }
+
+  async generateCurriculumFile(curriculums) {
+    const schema = [
+      {
+        column: 'Email',
+        type: String,
+        width: 50,
+        borderStyle: 'thin',
+        fontWeight: 'bold',
+        value: ({ id }) => id,
+      },
+      {
+        column: 'Nazwa programu - autor',
+        type: String,
+        width: 80,
+        borderStyle: 'thin',
+        value: ({ curriculumName }) => curriculumName,
+      }
+    ];
+
+    await writeXlsxFile(curriculums, {
+      schema: schema,
+      fileName: 'programy.xlsx'
     });
   }
 }

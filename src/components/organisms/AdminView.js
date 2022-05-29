@@ -2,7 +2,7 @@ import { useState, useContext, useEffect, useRef } from "react";
 import { ServiceContext } from "../../providers/ServiceProvider";
 import Button from '../atoms/Button';
 import TextInput from "../atoms/TextInput";
-import { collection, onSnapshot, query, where, getDocs } from "@firebase/firestore";
+import { collection, doc, onSnapshot, query, where, getDocs } from "@firebase/firestore";
 import { db } from "../../initFirebase";
 import { useForm } from "react-hook-form";
 import TextInputRef from "../atoms/TextInputRef";
@@ -10,8 +10,11 @@ import TextInputRef from "../atoms/TextInputRef";
 function AdminView() {
   const { register, handleSubmit } = useForm();
   const { service } = useContext(ServiceContext);
+  const [errors, setErrors] = useState({});
   const [bookData, setBookData] = useState([]);
+  const [curriculumExists, setCurriculumExists] = useState(false);
   const [classList, setClassList] = useState([]);
+  const curriculumNameInput = useRef(null);
   const bookClassNameInput = useRef(null);
   const bookGroupInput = useRef(null);
 
@@ -37,6 +40,36 @@ function AdminView() {
     return () => unsubscribe()
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = onSnapshot(doc(db, "curriculums", service.auth), (doc) => {
+      if(doc.data()) {
+        setCurriculumExists(true);
+        curriculumNameInput.current.value = doc.data().curriculumName;
+      }
+    });
+
+    return () => unsubscribe()
+  }, []);
+
+  const submitCurriculum = async (e) => {
+    e.preventDefault();
+    if(curriculumNameInput.current.value) {
+      service.setCurriculum(curriculumNameInput.current.value)
+        .then(() => alert("Poprawnie ustawiono program nauczania"));
+      setErrors({
+        ...errors,
+        curriculumName: '',
+      });
+    }
+    else {
+      setErrors({
+        ...errors,
+        curriculumName: "Proszę wypełnić to pole",
+      });
+    }
+
+  }
+
   const submitData = async ({ bookName, bookGrade, bookSubject }) => {
     const bookObject = {
       book: bookName,
@@ -44,7 +77,6 @@ function AdminView() {
       subject: bookSubject,
       classes: classList,
       author: service.auth,
-      // author: 'dSc. Aleksander Skubała',
     };
 
     service.newBook(bookObject);
@@ -77,6 +109,19 @@ function AdminView() {
     service.removeBook(bookData[id]);
   };
 
+  const downloadCurriculumFile = async () => {
+    const customQuery = query(collection(db, "curriculums"));
+    const querySnapshot = await getDocs(customQuery);
+
+    const curriculums = [];
+    querySnapshot.forEach(doc => curriculums.push({
+      ...doc.data(),
+      id: doc.id,
+    }));
+
+    service.generateCurriculumFile(curriculums);
+  }
+
   const downloadFile = async () => {
     const customQuery = query(collection(db, "books"));
     const querySnapshot = await getDocs(customQuery);
@@ -102,7 +147,15 @@ function AdminView() {
     <div className="w-screen min-h-screen bg-gray-100 flex justify-center items-center">
       <div className="w-full min-h-full lg:w-3/4 lg:min-h-3/4 xl:w-1/2 p-10 rounded-lg bg-white flex items-center flex-col">
         <h1 className="text-3xl font-bold mb-8">Twój program nauczania</h1>
-        <button onClick={downloadFile} className="p-3 mb-14 border-4 border-blue-300 border-dashed rounded text-lg text-blue-300 hover:text-blue-100 font-semibold">
+        <div className="w-full max-w-lg flex flex-wrap -mx-3 mb-6">
+            <TextInputRef error={errors.curriculumName} w="md:w-4/5" refProp={curriculumNameInput} name="curriculumName" label="Nazwa programu - autor"/>
+            <div className={`w-full md:w-1/5 flex flex-col ${errors.curriculumName ? 'justify-evenly' : 'justify-end'}`}>
+              <Button onClick={submitCurriculum} primary="true">
+                { curriculumExists ? 'Zmień' : 'Ustaw' }
+              </Button>
+            </div>
+          </div>
+        <button onClick={downloadCurriculumFile} className="p-3 mb-14 border-4 border-blue-300 border-dashed rounded text-lg text-blue-300 hover:text-blue-100 font-semibold">
           Pobierz listę programów
         </button>
         <h1 className="text-3xl font-bold mb-8">Lista podręczników</h1>
