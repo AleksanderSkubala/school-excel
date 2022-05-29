@@ -101,9 +101,13 @@ function AdminView() {
   return (
     <div className="w-screen min-h-screen bg-gray-100 flex justify-center items-center">
       <div className="w-full min-h-full lg:w-3/4 lg:min-h-3/4 xl:w-1/2 p-10 rounded-lg bg-white flex items-center flex-col">
+        <h1 className="text-3xl font-bold mb-8">Twój program nauczania</h1>
+        <button onClick={downloadFile} className="p-3 mb-14 border-4 border-blue-300 border-dashed rounded text-lg text-blue-300 hover:text-blue-100 font-semibold">
+          Pobierz listę programów
+        </button>
         <h1 className="text-3xl font-bold mb-8">Lista podręczników</h1>
-        <button onClick={downloadFile} className="p-5 mb-12 border-4 border-blue-300 border-dashed rounded text-lg text-blue-300 hover:text-blue-100 font-semibold">
-          Pobierz plik
+        <button onClick={downloadFile} className="p-3 mb-12 border-4 border-blue-300 border-dashed rounded text-lg text-blue-300 hover:text-blue-100 font-semibold">
+          Pobierz listę podręczników
         </button>
         <form onSubmit={handleSubmit(submitData)} className="w-full max-w-lg">
           <div className="flex flex-wrap -mx-3 mb-6">
@@ -155,7 +159,7 @@ function AdminView() {
               </ol>
             </div>
           ) : null}
-          <div className="float-right">
+          <div className="float-right mt-8">
             <Button secondary="true" type="reset">
               Anuluj
             </Button>
