@@ -179,6 +179,17 @@ export default class Service {
       }
     ];
 
+    const authorsSchema = [
+      {
+        column: 'Email',
+        type: String,
+        width: 50,
+        borderStyle: 'thin',
+        fontWeight: 'bold',
+        value: (author) => author,
+      },
+    ];
+
 
     const gradesToGenerate = [];
     const sheetsToGenerate = [];
@@ -190,6 +201,16 @@ export default class Service {
         schemasToGenerate.push(schema);
       }
     });
+
+    const authors = [];
+    this.usersBooks.forEach(({ author }) => {
+      if(authors.indexOf(author) === -1)
+        authors.push(author);
+    });
+
+    sheetsToGenerate.push("Autorzy");
+    gradesToGenerate.push(authors);
+    schemasToGenerate.push(authorsSchema);
 
     await writeXlsxFile(gradesToGenerate, {
       schema: schemasToGenerate,

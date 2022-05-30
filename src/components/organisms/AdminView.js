@@ -55,11 +55,13 @@ function AdminView() {
     e.preventDefault();
     if(curriculumNameInput.current.value) {
       service.setCurriculum(curriculumNameInput.current.value)
-        .then(() => alert("Poprawnie ustawiono program nauczania"));
-      setErrors({
-        ...errors,
-        curriculumName: '',
-      });
+        .then(() => {
+          alert("Poprawnie ustawiono program nauczania")
+          setErrors({
+            ...errors,
+            curriculumName: '',
+          });
+        });
     }
     else {
       setErrors({
@@ -147,6 +149,10 @@ function AdminView() {
     <div className="w-screen min-h-screen bg-gray-100 flex justify-center items-center">
       <div className="w-full min-h-full lg:w-3/4 lg:min-h-3/4 xl:w-1/2 p-10 rounded-lg bg-white flex items-center flex-col">
         <h1 className="text-3xl font-bold mb-8">Twój program nauczania</h1>
+        {/* <div className="w-full max-w-lg flex flex-wrap mb-6">
+          <TextInputRef w="md:w-1/2 " name="firstName" label="Twoje Imię" />
+          <TextInputRef w="md:w-1/2 " name="secondName" label="Nazwisko" />
+        </div> */}
         <div className="w-full max-w-lg flex flex-wrap -mx-3 mb-6">
             <TextInputRef error={errors.curriculumName} w="md:w-4/5" refProp={curriculumNameInput} name="curriculumName" label="Nazwa programu - autor"/>
             <div className={`w-full md:w-1/5 flex flex-col ${errors.curriculumName ? 'justify-evenly' : 'justify-end'}`}>
