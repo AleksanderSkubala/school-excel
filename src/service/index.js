@@ -17,6 +17,7 @@ export default class Service {
   }
 
   transferDataFromDB(dbData) {
+    this.usersBooks = [];
     dbData.forEach(bookObject => {
       this.usersBooks.push(bookObject);
     });
@@ -142,6 +143,7 @@ export default class Service {
         }
       }
     }
+    console.log(convertedJSON);
     this.excelData = convertedJSON;
   }
 
