@@ -231,15 +231,35 @@ export default class Service {
       {
         column: 'Email',
         type: String,
-        width: 50,
+        width: 40,
         borderStyle: 'thin',
-        fontWeight: 'bold',
         value: ({ id }) => id,
+      },
+      {
+        column: 'Imię',
+        type: String,
+        width: 15,
+        borderStyle: 'thin',
+        value: ({ firstName }) => firstName,
+      },
+      {
+        column: 'Nazwisko',
+        type: String,
+        width: 15,
+        borderStyle: 'thin',
+        value: ({ secondName }) => secondName,
+      },
+      {
+        column: 'Przedmiot',
+        type: String,
+        width: 20,
+        borderStyle: 'thin',
+        value: ({ curriculumSubject }) => curriculumSubject,
       },
       {
         column: 'Nazwa programu - autor',
         type: String,
-        width: 80,
+        width: 100,
         borderStyle: 'thin',
         value: ({ curriculumName }) => curriculumName,
       }
