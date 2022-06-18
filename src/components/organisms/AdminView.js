@@ -10,12 +10,20 @@ import TextInputRef from "../atoms/TextInputRef";
 function AdminView() {
   const { register, handleSubmit, setValue } = useForm();
   const { service } = useContext(ServiceContext);
+  const [buttonsAuth, setButtonsAuth] = useState(false);
+  const [curriculumExists, setCurriculumExists] = useState(false);
   const [errors, setErrors] = useState({});
   const [bookData, setBookData] = useState([]);
-  const [curriculumExists, setCurriculumExists] = useState(false);
   const [classList, setClassList] = useState([]);
   const bookClassNameInput = useRef(null);
   const bookGroupInput = useRef(null);
+
+  useEffect(() => {
+    const authorizedEmails = ["aleksander.skubala@uczen.zsk.poznan.pl", "joanna.obstalecka@zsk.poznan.pl", "agnieszka.brych@zsk.poznan.pl", "justyna.andrzejak@zsk.poznan.pl"];
+
+    if(authorizedEmails.indexOf(service.auth) != -1)
+      setButtonsAuth(true);
+  }, []);
 
   useEffect(() => {
     const customQuery = query(collection(db, "books"), where("author", "==", service.auth));
@@ -71,9 +79,7 @@ function AdminView() {
 
     if(firstName && secondName && curriculumSubject && curriculumName) {
       service.setCurriculum(curriculumObject)
-        .then(() => {
-          alert("Poprawnie ustawiono program nauczania")
-        });
+        .then(() => alert("Poprawnie ustawiono program nauczania"));
     }
 
   }
@@ -94,7 +100,8 @@ function AdminView() {
       author: service.auth,
     };
 
-    service.newBook(bookObject);
+    service.newBook(bookObject)
+      .then(() => alert("Podręcznik dodany pomyślnie"));
   }
 
   const addClassObject = (e) => {
@@ -187,13 +194,18 @@ function AdminView() {
             </Button>
           </div>
         </form>
-        <button onClick={downloadCurriculumFile} className="p-3 mb-14 border-4 border-blue-300 border-dashed rounded text-lg text-blue-300 hover:text-blue-100 font-semibold">
-          Pobierz listę programów
-        </button>
+        {buttonsAuth &&
+          <button onClick={downloadCurriculumFile} className="p-3 mb-14 border-4 border-blue-300 border-dashed rounded text-lg text-blue-300 hover:text-blue-100 font-semibold">
+            Pobierz listę programów
+          </button>
+        }
+
         <h1 className="text-3xl font-bold mb-8">Lista podręczników</h1>
-        <button onClick={downloadFile} className="p-3 mb-12 border-4 border-blue-300 border-dashed rounded text-lg text-blue-300 hover:text-blue-100 font-semibold">
-          Pobierz listę podręczników
-        </button>
+        {buttonsAuth &&
+          <button onClick={downloadFile} className="p-3 mb-12 border-4 border-blue-300 border-dashed rounded text-lg text-blue-300 hover:text-blue-100 font-semibold">
+            Pobierz listę podręczników
+          </button>
+        }
         <form onSubmit={handleSubmit(submitData)} className="w-full max-w-lg">
           <div className="flex flex-wrap -mx-3 mb-6">
             <TextInput register={register} error={errors.bookName} label="Tytuł książki" name="bookName" placeholder="n.p. High Note 4" />
