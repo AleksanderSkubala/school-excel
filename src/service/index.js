@@ -24,11 +24,11 @@ export default class Service {
     this.convertArrays();
   }
 
-  setCurriculum(curriculumName) {
+  setCurriculum(curriculumObject) {
     return new Promise((resolve, reject) => {
       const curriculumRef = doc(db, "curriculums", this.auth);
 
-      setDoc(curriculumRef, { curriculumName }, { merge: true })
+      setDoc(curriculumRef, curriculumObject, { merge: true })
         .then(() => resolve())
         .catch(() => reject());
     });

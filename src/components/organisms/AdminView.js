@@ -43,7 +43,10 @@ function AdminView() {
     const unsubscribe = onSnapshot(doc(db, "curriculums", service.auth), (doc) => {
       if(doc.data()) {
         setCurriculumExists(true);
-        setValue("curriculumName", doc.data().curriculumName)
+        setValue("firstName", doc.data().firstName);
+        setValue("secondName", doc.data().secondName);
+        setValue("curriculumSubject", doc.data().curriculumSubject);
+        setValue("curriculumName", doc.data().curriculumName);
       }
     });
 
@@ -59,8 +62,15 @@ function AdminView() {
       curriculumName: !curriculumName ? "Proszę wypełnić to pole" : "",
     });
 
+    const curriculumObject = {
+      firstName,
+      secondName,
+      curriculumSubject,
+      curriculumName,
+    };
+
     if(firstName && secondName && curriculumSubject && curriculumName) {
-      service.setCurriculum(curriculumName)
+      service.setCurriculum(curriculumObject)
         .then(() => {
           alert("Poprawnie ustawiono program nauczania")
         });
