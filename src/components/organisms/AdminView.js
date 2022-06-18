@@ -8,13 +8,12 @@ import { useForm } from "react-hook-form";
 import TextInputRef from "../atoms/TextInputRef";
 
 function AdminView() {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, setValue } = useForm();
   const { service } = useContext(ServiceContext);
   const [errors, setErrors] = useState({});
   const [bookData, setBookData] = useState([]);
   const [curriculumExists, setCurriculumExists] = useState(false);
   const [classList, setClassList] = useState([]);
-  const curriculumNameInput = useRef(null);
   const bookClassNameInput = useRef(null);
   const bookGroupInput = useRef(null);
 
@@ -44,35 +43,39 @@ function AdminView() {
     const unsubscribe = onSnapshot(doc(db, "curriculums", service.auth), (doc) => {
       if(doc.data()) {
         setCurriculumExists(true);
-        curriculumNameInput.current.value = doc.data().curriculumName;
+        setValue("curriculumName", doc.data().curriculumName)
       }
     });
 
     return () => unsubscribe()
   }, []);
 
-  const submitCurriculum = async (e) => {
-    e.preventDefault();
-    if(curriculumNameInput.current.value) {
-      service.setCurriculum(curriculumNameInput.current.value)
+  const submitCurriculum = async ({ firstName, secondName, curriculumSubject, curriculumName }) => {
+    setErrors({
+      ...errors,
+      firstName: !firstName ? "Proszę wypełnić to pole" : "",
+      secondName: !secondName ? "Proszę wypełnić to pole" : "",
+      curriculumSubject: !curriculumSubject ? "Proszę wypełnić to pole" : "",
+      curriculumName: !curriculumName ? "Proszę wypełnić to pole" : "",
+    });
+
+    if(firstName && secondName && curriculumSubject && curriculumName) {
+      service.setCurriculum(curriculumName)
         .then(() => {
           alert("Poprawnie ustawiono program nauczania")
-          setErrors({
-            ...errors,
-            curriculumName: '',
-          });
         });
-    }
-    else {
-      setErrors({
-        ...errors,
-        curriculumName: "Proszę wypełnić to pole",
-      });
     }
 
   }
 
   const submitData = async ({ bookName, bookGrade, bookSubject }) => {
+    setErrors({
+      ...errors,
+      bookName: !bookName ? "Proszę wypełnić to pole" : "",
+      bookGrade: !bookGrade ? "Proszę wypełnić to pole" : "",
+      bookSubject: !bookSubject ? "Proszę wypełnić to pole" : "",
+    });
+
     const bookObject = {
       book: bookName,
       grade: bookGrade,
@@ -87,6 +90,11 @@ function AdminView() {
   const addClassObject = (e) => {
     e.preventDefault();
     const className = bookClassNameInput.current.value;
+    setErrors({
+      ...errors,
+      className: !className ? "Proszę wypełnić to pole" : "",
+    });
+
     const groups = bookGroupInput.current.value;
     const groupList = groups.split(',');
 
@@ -148,19 +156,27 @@ function AdminView() {
   return (
     <div className="w-screen min-h-screen bg-gray-100 flex justify-center items-center">
       <div className="w-full min-h-full lg:w-3/4 lg:min-h-3/4 xl:w-1/2 p-10 rounded-lg bg-white flex items-center flex-col">
-        <h1 className="text-3xl font-bold mb-8">Twój program nauczania</h1>
-        {/* <div className="w-full max-w-lg flex flex-wrap mb-6">
-          <TextInputRef w="md:w-1/2 " name="firstName" label="Twoje Imię" />
-          <TextInputRef w="md:w-1/2 " name="secondName" label="Nazwisko" />
-        </div> */}
-        <div className="w-full max-w-lg flex flex-wrap -mx-3 mb-6">
-            <TextInputRef error={errors.curriculumName} w="md:w-4/5" refProp={curriculumNameInput} name="curriculumName" label="Nazwa programu - autor"/>
-            <div className={`w-full md:w-1/5 flex flex-col ${errors.curriculumName ? 'justify-evenly' : 'justify-end'}`}>
-              <Button onClick={submitCurriculum} primary="true">
-                { curriculumExists ? 'Zmień' : 'Ustaw' }
-              </Button>
-            </div>
+        <h1 className="text-3xl font-bold mb-8">Program nauczania</h1>
+        <form onSubmit={handleSubmit(submitCurriculum)}>
+          <div className="w-full max-w-lg flex flex-wrap mb-6">
+            <TextInput register={register} error={errors.firstName} w="md:w-1/2" name="firstName" label="Twoje Imię" placeholder="np. Michał"/>
+            <TextInput register={register} error={errors.secondName} w="md:w-1/2" name="secondName" label="Twoje Nazwisko" placeholder="np. Kowalski"/>
           </div>
+          <div className="mb-6">
+            <TextInput register={register} error={errors.curriculumSubject} name="curriculumSubject" label="Przedmiot" placeholder="n.p. Język angielski" />
+          </div>
+          <div className="mb-6">
+            <TextInput register={register} error={errors.curriculumName} name="curriculumName" label="Nazwa programu - autor" placeholder="np. ABC - Jan Kowalski"/>
+          </div>
+          <div className="float-right mb-6">
+            <Button secondary="true" type="reset">
+              Anuluj
+            </Button>
+            <Button primary="true" type="submit">
+              { curriculumExists ? 'Zmień podstawę' : 'Przypisz podstawę' }
+            </Button>
+          </div>
+        </form>
         <button onClick={downloadCurriculumFile} className="p-3 mb-14 border-4 border-blue-300 border-dashed rounded text-lg text-blue-300 hover:text-blue-100 font-semibold">
           Pobierz listę programów
         </button>
@@ -170,10 +186,10 @@ function AdminView() {
         </button>
         <form onSubmit={handleSubmit(submitData)} className="w-full max-w-lg">
           <div className="flex flex-wrap -mx-3 mb-6">
-            <TextInput register={register} label="Tytuł książki" name="bookName" placeholder="n.p. High Note 4" description="Proszę wypełnić to pole." />
+            <TextInput register={register} error={errors.bookName} label="Tytuł książki" name="bookName" placeholder="n.p. High Note 4" />
           </div>
           <div className="flex flex-wrap -mx-3 mb-6">
-            <TextInput register={register} w="md:w-1/2 " name="bookSubject" label="Przedmiot" placeholder="n.p. Język angielski" />
+            <TextInput register={register} error={errors.bookSubject} w="md:w-1/2 " name="bookSubject" label="Przedmiot" placeholder="n.p. Język angielski" />
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label htmlFor="bookGrade" className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 Klasa
@@ -194,7 +210,7 @@ function AdminView() {
           </div>
 
           <div className="flex flex-wrap -mx-3 mb-6">
-            <TextInputRef w="md:w-2/5" refProp={bookClassNameInput} name="bookClassName" label="Identyfikator oddziału" placeholder="n.p. 3_PC" />
+            <TextInputRef w="md:w-2/5" refProp={bookClassNameInput} error={errors.className} name="bookClassName" label="Identyfikator oddziału" placeholder="n.p. 3_PC" />
             <TextInputRef w="md:w-2/5" refProp={bookGroupInput} name="bookGroup" label="Grupa" placeholder="n.p. 1/2" />
             <div className="w-full md:w-1/5 flex flex-col justify-center">
               <Button onClick={addClassObject} primary="true">
