@@ -173,7 +173,7 @@ function AdminView() {
   return (
     <div className="w-screen min-h-screen bg-gray-100 flex justify-center items-center">
       <div className="w-full min-h-full lg:w-3/4 lg:min-h-3/4 xl:w-1/2 p-10 rounded-lg bg-white flex items-center flex-col">
-        <h1 className="text-3xl font-bold mb-8">Podstawa programowa</h1>
+        <h1 className="text-3xl font-bold mb-8">Program nauczania</h1>
         <form className="w-full max-w-lg" onSubmit={handleSubmit(submitCurriculum)}>
           <div className="w-full max-w-lg flex flex-wrap mb-6">
             <TextInput register={register} error={errors.firstName} w="md:w-1/2" name="firstName" label="Twoje Imię" placeholder="np. Michał"/>
@@ -183,14 +183,14 @@ function AdminView() {
             <TextInput register={register} error={errors.curriculumSubject} name="curriculumSubject" label="Przedmiot" placeholder="n.p. Język angielski" />
           </div>
           <div className="mb-6">
-            <TextInput register={register} error={errors.curriculumName} name="curriculumName" label="Nazwa podstawy" description="Format: Nazwa podstawy - Autor" placeholder="np. ABC - Jan Kowalski"/>
+            <TextInput register={register} error={errors.curriculumName} name="curriculumName" label="Nazwa programu" description="Format: Nazwa programu - Autor" placeholder="np. ABC - Jan Kowalski"/>
           </div>
           <div className="float-right mb-6">
             <Button secondary="true" type="reset">
               Anuluj
             </Button>
             <Button primary="true" type="submit">
-              { curriculumExists ? 'Zmień podstawę' : 'Przypisz podstawę' }
+              { curriculumExists ? 'Zmień program' : 'Przypisz program' }
             </Button>
           </div>
         </form>
