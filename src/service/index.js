@@ -143,7 +143,7 @@ export default class Service {
         }
       }
     }
-    console.log(convertedJSON);
+    // console.log(convertedJSON);
     this.excelData = convertedJSON;
   }
 
@@ -227,6 +227,22 @@ export default class Service {
   }
 
   async generateCurriculumFile(curriculums) {
+    const convertedCurriculums = [];
+
+    curriculums.forEach(curriculum => {
+      if(curriculum.curriculumsList) {
+        JSON.parse(curriculum.curriculumsList).forEach(parsedCurriculum => {
+          convertedCurriculums.push({
+            ...curriculum,
+            curriculumSubject: parsedCurriculum[0],
+            curriculumName: parsedCurriculum[1],
+          });
+        });
+      } else {
+        convertedCurriculums.push(curriculum);
+      }
+    });
+
     const schema = [
       {
         column: 'Email',
@@ -265,7 +281,7 @@ export default class Service {
       }
     ];
 
-    await writeXlsxFile(curriculums, {
+    await writeXlsxFile(convertedCurriculums, {
       schema: schema,
       fileName: 'programy.xlsx'
     });

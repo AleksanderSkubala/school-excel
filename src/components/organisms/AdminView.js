@@ -10,13 +10,17 @@ import TextInputRef from "../atoms/TextInputRef";
 function AdminView() {
   const { register, handleSubmit, setValue } = useForm();
   const { service } = useContext(ServiceContext);
+  const [errors, setErrors] = useState({});
   const [buttonsAuth, setButtonsAuth] = useState(false);
   const [curriculumExists, setCurriculumExists] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [manyCurriculums, setManyCurriculums]= useState(false);
+  const [curriculumsList, setCurriculumsList] = useState([]);
   const [bookData, setBookData] = useState([]);
   const [classList, setClassList] = useState([]);
   const bookClassNameInput = useRef(null);
   const bookGroupInput = useRef(null);
+  const curriculumSubjectRef = useRef(null);
+  const curriculumNameRef = useRef(null);
 
   useEffect(() => {
     const authorizedEmails = ["aleksander.skubala@uczen.zsk.poznan.pl", "joanna.obstalecka@zsk.poznan.pl", "agnieszka.brych@zsk.poznan.pl", "justyna.andrzejak@zsk.poznan.pl"];
@@ -53,15 +57,22 @@ function AdminView() {
         setCurriculumExists(true);
         setValue("firstName", doc.data().firstName);
         setValue("secondName", doc.data().secondName);
-        setValue("curriculumSubject", doc.data().curriculumSubject);
-        setValue("curriculumName", doc.data().curriculumName);
+        if(doc.data().curriculumsList) {
+          setCurriculumsList(JSON.parse(doc.data().curriculumsList));
+          setManyCurriculums(true);
+        } else {
+          curriculumSubjectRef.current.value = doc.data().curriculumSubject;
+          curriculumNameRef.current.value = doc.data().curriculumName;
+        }
       }
     });
 
     return () => unsubscribe()
   }, []);
 
-  const submitCurriculum = async ({ firstName, secondName, curriculumSubject, curriculumName }) => {
+  const submitCurriculum = async ({ firstName, secondName }) => {
+    const curriculumSubject = curriculumSubjectRef.current.value;
+    const curriculumName = curriculumNameRef.current.value;
     setErrors({
       ...errors,
       firstName: !firstName ? "Proszę wypełnić to pole" : "",
@@ -73,11 +84,19 @@ function AdminView() {
     const curriculumObject = {
       firstName,
       secondName,
-      curriculumSubject,
-      curriculumName,
     };
 
-    if(firstName && secondName && curriculumSubject && curriculumName) {
+    if(manyCurriculums) {
+      curriculumObject["curriculumsList"] = JSON.stringify(curriculumsList);
+      curriculumObject["curriculumSubject"] = "";
+      curriculumObject["curriculumName"] = "";
+    } else {
+      curriculumObject["curriculumsList"] = "";
+      curriculumObject["curriculumSubject"] = curriculumSubject;
+      curriculumObject["curriculumName"] = curriculumName;
+    }
+
+    if(firstName && secondName) {
       service.setCurriculum(curriculumObject)
         .then(() => alert("Poprawnie ustawiono program nauczania"));
     }
@@ -104,6 +123,22 @@ function AdminView() {
       .then(() => alert("Podręcznik dodany pomyślnie"));
   }
 
+  const addCurriculum = (e) => {
+    e.preventDefault();
+    const curriculumSubject = curriculumSubjectRef.current.value;
+    const curriculumName = curriculumNameRef.current.value;
+    setErrors({
+      ...errors,
+      curriculumSubject: !curriculumSubject ? "Proszę wypełnić to pole" : "",
+      curriculumName: !curriculumName ? "Proszę wypełnić to pole" : "",
+    });
+
+    setCurriculumsList([
+      ...curriculumsList,
+      [curriculumSubject, curriculumName],
+    ]);
+  };
+
   const addClassObject = (e) => {
     e.preventDefault();
     const className = bookClassNameInput.current.value;
@@ -122,6 +157,13 @@ function AdminView() {
     ]);
 
     setClassList(currentClasses);
+  };
+
+  const removeCurriculumObject = (e, id) => {
+    e.preventDefault();
+    const newCurriculums = curriculumsList.slice();
+    newCurriculums.splice(id, 1);
+    setCurriculumsList(newCurriculums);
   };
 
   const removeClassObject = (e, id) => {
@@ -172,20 +214,42 @@ function AdminView() {
 
   return (
     <div className="w-screen min-h-screen bg-gray-100 flex justify-center items-center">
-      <div className="w-full min-h-full lg:w-3/4 lg:min-h-3/4 xl:w-1/2 p-10 rounded-lg bg-white flex items-center flex-col">
+      <div className="w-full min-h-full lg:w-4/5 lg:min-h-3/4 xl:w-1/2 p-10 rounded-lg bg-white flex items-center flex-col">
         <h1 className="text-3xl font-bold mb-8">Program nauczania</h1>
         <form className="w-full max-w-lg" onSubmit={handleSubmit(submitCurriculum)}>
-          <div className="w-full max-w-lg flex flex-wrap mb-6">
+          <div className="flex flex-wrap mb-6">
             <TextInput register={register} error={errors.firstName} w="md:w-1/2" name="firstName" label="Twoje Imię" placeholder="np. Michał"/>
             <TextInput register={register} error={errors.secondName} w="md:w-1/2" name="secondName" label="Twoje Nazwisko" placeholder="np. Kowalski"/>
           </div>
-          <div className="mb-6">
-            <TextInput register={register} error={errors.curriculumSubject} name="curriculumSubject" label="Przedmiot" placeholder="n.p. Język angielski" />
+          <div className="w-full max-w-lg flex flex-wrap mb-6">
+            <TextInputRef refProp={curriculumSubjectRef} error={errors.curriculumSubject} w="md:w-1/3" name="curriculumSubject" label="Przedmiot" placeholder="n.p. Język angielski" />
+            <TextInputRef refProp={curriculumNameRef} error={errors.curriculumName} w="md:w-2/3" name="curriculumName" label="Nazwa programu" description="Format: Nazwa programu - Autor" placeholder="np. ABC - Jan Kowalski"/>
+            <div className="mt-3 w-full flex justify-end">
+              <div className="mr-6 flex items-center justify-center">
+                <input id="manyCurriculums" name="manyCurriculums" type="checkbox" checked={manyCurriculums} onChange={() => setManyCurriculums(!manyCurriculums)} className="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
+                <label htmlFor="manyCurriculums" className="block text-sm text-gray-900"> Korzystam z wielu programów </label>
+              </div>
+              {manyCurriculums &&
+                <Button onClick={addCurriculum} primary="true">Dodaj program</Button>
+              }
+            </div>
           </div>
-          <div className="mb-6">
-            <TextInput register={register} error={errors.curriculumName} name="curriculumName" label="Nazwa programu" description="Format: Nazwa programu - Autor" placeholder="np. ABC - Jan Kowalski"/>
-          </div>
-          <div className="float-right mb-6">
+          {manyCurriculums && curriculumsList.length > 0 &&
+            <div className="mb-10">
+              <p className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                Lista programów:
+              </p>
+              <ol className="mt-4">
+                {curriculumsList.map((curriculumObject, id) => (
+                  <li key={id} className="mb-2">
+                    {`${curriculumObject[0]} - ${curriculumObject[1]}`}
+                    <Button onClick={(e) => removeCurriculumObject(e, id)}>Usuń</Button>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          }
+          <div className="float-right mb-8">
             <Button secondary="true" type="reset">
               Anuluj
             </Button>
@@ -234,13 +298,11 @@ function AdminView() {
           <div className="flex flex-wrap -mx-3 mb-6">
             <TextInputRef w="md:w-2/5" refProp={bookClassNameInput} error={errors.className} name="bookClassName" label="Identyfikator oddziału" placeholder="n.p. 3_PC" />
             <TextInputRef w="md:w-2/5" refProp={bookGroupInput} name="bookGroup" label="Grupa" placeholder="n.p. 1/2" />
-            <div className="w-full md:w-1/5 flex flex-col justify-center">
-              <Button onClick={addClassObject} primary="true">
-                Dodaj oddział
-              </Button>
-            </div>
+            <Button className="w-full md:w-1/5" onClick={addClassObject} primary="true">
+              Dodaj oddział
+            </Button>
           </div>
-          {classList.length > 0 ? (
+          {classList.length > 0 &&
             <div>
               <p className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 Lista oddziałów:
@@ -255,7 +317,7 @@ function AdminView() {
                 ))}
               </ol>
             </div>
-          ) : null}
+          }
           <div className="float-right mt-8">
             <Button secondary="true" type="reset">
               Anuluj
