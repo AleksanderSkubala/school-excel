@@ -296,7 +296,7 @@ function AdminView() {
           </div>
 
           <div className="flex flex-wrap -mx-3 mb-6">
-            <TextInputRef w="md:w-2/5" refProp={bookClassNameInput} error={errors.className} name="bookClassName" label="Identyfikator oddziału" placeholder="n.p. 3_PC" />
+            <TextInputRef w="md:w-2/5" refProp={bookClassNameInput} error={errors.className} name="bookClassName" label="Identyfikator oddziału" placeholder="n.p. 3C" />
             <TextInputRef w="md:w-2/5" refProp={bookGroupInput} name="bookGroup" label="Grupa" placeholder="n.p. 1/2" />
             <Button className="w-full md:w-1/5" onClick={addClassObject} primary="true">
               Dodaj oddział

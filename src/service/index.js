@@ -245,6 +245,13 @@ export default class Service {
 
     const schema = [
       {
+        column: 'Przedmiot',
+        type: String,
+        width: 20,
+        borderStyle: 'thin',
+        value: ({ curriculumSubject }) => curriculumSubject,
+      },
+      {
         column: 'Email',
         type: String,
         width: 40,
@@ -264,13 +271,6 @@ export default class Service {
         width: 15,
         borderStyle: 'thin',
         value: ({ secondName }) => secondName,
-      },
-      {
-        column: 'Przedmiot',
-        type: String,
-        width: 20,
-        borderStyle: 'thin',
-        value: ({ curriculumSubject }) => curriculumSubject,
       },
       {
         column: 'Nazwa programu - autor',
