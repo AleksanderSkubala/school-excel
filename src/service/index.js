@@ -74,9 +74,10 @@ export default class Service {
               convertedJSON[book.grade] = [];
             }
 
-            const existingIndex = convertedJSON[book.grade].findIndex(element => (
-              element.className === classObject[0] && element.subject === book.subject
-            ));
+            const existingIndex = convertedJSON[book.grade].findIndex(element => {
+              return element.className.toLowerCase() === classObject[0].toLowerCase() && element.subject.toLowerCase() === book.subject.toLowerCase()
+            });
+
 
             if (existingIndex !== -1) {
               if (classObject[1]) {
