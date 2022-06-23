@@ -216,6 +216,11 @@ function AdminView() {
     <div className="w-screen min-h-screen bg-gray-100 flex justify-center items-center">
       <div className="w-full min-h-full lg:w-4/5 lg:min-h-3/4 xl:w-1/2 p-10 rounded-lg bg-white flex items-center flex-col">
         <h1 className="text-3xl font-bold mb-8">Program nauczania</h1>
+        {buttonsAuth &&
+          <button onClick={downloadCurriculumFile} className="p-3 mb-12 border-4 border-blue-300 border-dashed rounded text-lg text-blue-300 hover:text-blue-100 font-semibold">
+            Pobierz listę programów
+          </button>
+        }
         <form className="w-full max-w-lg" onSubmit={handleSubmit(submitCurriculum)}>
           <div className="flex flex-wrap mb-6">
             <TextInput register={register} error={errors.firstName} w="md:w-1/2" name="firstName" label="Twoje Imię" placeholder="np. Michał"/>
@@ -249,7 +254,7 @@ function AdminView() {
               </ol>
             </div>
           }
-          <div className="float-right mb-8">
+          <div className="float-right mb-20">
             <Button secondary="true" type="reset">
               Anuluj
             </Button>
@@ -258,11 +263,6 @@ function AdminView() {
             </Button>
           </div>
         </form>
-        {buttonsAuth &&
-          <button onClick={downloadCurriculumFile} className="p-3 mb-14 border-4 border-blue-300 border-dashed rounded text-lg text-blue-300 hover:text-blue-100 font-semibold">
-            Pobierz listę programów
-          </button>
-        }
 
         <h1 className="text-3xl font-bold mb-8">Lista podręczników</h1>
         {buttonsAuth &&
