@@ -105,17 +105,19 @@ export default class Service {
             }
           }
 
-          convertedJSON[book.grade].sort((a, b) => {
-            if (a.subject < b.subject) return -1;
-            if (a.subject > b.subject) return 1;
-            return 0;
-          });
+          if(convertedJSON[book.grade]) {
+            convertedJSON[book.grade].sort((a, b) => {
+              if (a.subject < b.subject) return -1;
+              if (a.subject > b.subject) return 1;
+              return 0;
+            });
 
-          convertedJSON[book.grade].sort((a, b) => {
-            if (a.className < b.className) return -1;
-            if (a.className > b.className) return 1;
-            return 0;
-          });
+            convertedJSON[book.grade].sort((a, b) => {
+              if (a.className < b.className) return -1;
+              if (a.className > b.className) return 1;
+              return 0;
+            });
+          }
 
           // for(const key of Object.keys(book.classes)) {
           //   if(!convertedJSON[book.grade]) {
